@@ -1,0 +1,51 @@
+{
+  "name": "datefile",
+  "version": "0.0.1",
+  "description": "index files in a directory using the date of another file as a filter",
+  "main": "main.js",
+  "scripts": {
+    "start": "concurrently \"npm run react-start\" \"npm run electron-start\"",
+    "react-start": "react-scripts start",
+    "electron-start": "electron .",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "file",
+    "index",
+    "search",
+    "dates",
+    "directory"
+  ],
+  "eslintConfig": {
+    "extends": [
+      "react-app",
+      "react-app/jest"
+    ]
+  },
+  "author": "vyaithn",
+  "license": "ISC",
+  "devDependencies": {
+    "concurrently": "^8.1.0",
+    "electron": "^25.0.1",
+    "electron-reloader": "^1.2.3",
+    "react-scripts": "5.0.1"
+  },
+  "dependencies": {
+    "@emotion/cache": "^11.11.0",
+    "@emotion/react": "^11.11.0",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.11.16",
+    "@mui/material": "^5.13.4",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "web-vitals": "^2.1.4"
+  },
+  "browserslist": {
+    "production": [
+      "electron >= 25.0.1"
+    ],
+    "development": [
+      "electron >= 25.0.1"
+    ]
+  }
+}
