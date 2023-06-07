@@ -9,23 +9,6 @@ import { red } from "@mui/material/colors";
 import MainUI from "./components/MainUI";
 import "./App.css";
 
-const { ipcRenderer } = window.require("electron");
-
-ipcRenderer.send("read-directory", "/path/to/directory");
-
-ipcRenderer.on("read-directory-response", (event, response) => {
-  if (response.error) {
-    console.error("Error reading directory:", response.error);
-  } else {
-    const files = response.files;
-    console.log("Files in directory:", files);
-  }
-});
-
-const handleLocations = (fileLocation, directoryLocation) => {
-  ipcRenderer.send("locations", { fileLocation, directoryLocation });
-};
-
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
   //const [mode, setMode] = React.useState(prefersDarkMode ? "dark" : "light");
@@ -34,11 +17,9 @@ function App() {
     () =>
       createTheme({
         palette: {
-          palette: {
-            mode: prefersDarkMode ? "dark" : "light",
-          },
+          mode: prefersDarkMode ? "dark" : "light",
           primary: {
-            main: !prefersDarkMode ? "#ffffff" : "#1E1E1E",
+            main: prefersDarkMode ? "#ffffff" : "#1E1E1E",
           },
           secondary: {
             main: "#242424",
@@ -52,11 +33,32 @@ function App() {
   );
 
   return (
-    <ThemeProvider theme={theme}>
-      {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
-      <CssBaseline />
-      <MainUI></MainUI>
-    </ThemeProvider>
+    <div
+      style={{
+        minHeight: "100vh",
+        display: "grid",
+        placeItems: "center",
+        overflow: "hidden",
+      }}
+    >
+      <ThemeProvider theme={theme}>
+        {/* CssBaseline kickstart an elegant, consistent, and simple baseline to build upon. */}
+        <CssBaseline />
+        <div
+          style={{
+            width: "100%",
+            height: "100%",
+            display: "flex",
+            flexDirection: "column",
+            overflow: "hidden",
+          }}
+        >
+          <div style={{ flex: "1 0 auto", overflow: "hidden" }}>
+            <MainUI></MainUI>
+          </div>
+        </div>
+      </ThemeProvider>
+    </div>
   );
 }
 
