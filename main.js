@@ -23,9 +23,11 @@ const createWindow = () => {
       nodeIntegration: true,
       enableRemoteModule: true,
       contextIsolation: false,
+      devTools: false, // Disable DevTools
+      fullscreen: true, // Hide the top bar
     },
   });
-
+  win.removeMenu();
   win.loadURL("http://localhost:3000");
 
   ipcMain.on(
