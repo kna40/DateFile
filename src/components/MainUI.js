@@ -92,36 +92,41 @@ const ListStyle = styled(List)({
 
 const { ipcRenderer } = window.require("electron");
 const MainUI = () => {
+  const [contextMenu, setContextMenu] = React.useState(null);
   const [filePath, setFilePath] = React.useState("");
-
-  const handleFileSelection = () => {
-    ipcRenderer.send("open-file-selection");
-  };
-  const handleDirectorySelection = () => {
-    ipcRenderer.send("open-directory-selection");
-  };
   const [dFileNames, setDFileNames] = React.useState([]);
   const [emptyReturnedDFiles, setEmptyReturnedDFiles] = React.useState(false);
+  const [hasReceivedFiles, setHasReceivedFiles] = React.useState(false);
   const [directoryPath, setDirectoryPath] = React.useState("");
+  const [selectedChip, setSelectedChip] = React.useState("Date Modified");
+  const [sourceFileError, setSourceFileError] = React.useState(false);
+  const [directoryError, setDirectoryError] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [directoryNotfound, setDirectoryNotFound] = React.useState(false);
+  const [fileNotfound, setFileNotFound] = React.useState(false);
   React.useEffect(() => {
     ipcRenderer.on("directory-files-chunk", (event, filesData) => {
-      // Update the state with the received file data
-      setDFileNames((prevFileNames) => [...prevFileNames, ...filesData]);
+      if (filesData.length > 0) {
+        setDFileNames((prevFileNames) => [...prevFileNames, ...filesData]);
+        setHasReceivedFiles(true);
+      }
+    });
+
+    ipcRenderer.on("directory-files-end", () => {
+      setIsLoading(false);
+
+      if (!hasReceivedFiles) {
+        setEmptyReturnedDFiles(true); // Set emptyReturnedDFiles to true if no files were received
+        setHasReceivedFiles(false);
+      }
     });
 
     return () => {
       ipcRenderer.removeAllListeners("directory-files-chunk");
-    };
-  }, []);
-  React.useEffect(() => {
-    ipcRenderer.on("directory-files-end", () => {
-      setIsLoading(false);
-    });
-
-    return () => {
       ipcRenderer.removeAllListeners("directory-files-end");
     };
-  }, []);
+  }, [hasReceivedFiles]);
+
   React.useEffect(() => {
     //ipcRenderer.send("get-directory-files" /* directory path */);
     ipcRenderer.on("setFilePath", (event, filePaths) => {
@@ -131,21 +136,65 @@ const MainUI = () => {
     });
 
     return () => {
-      ipcRenderer.removeAllListeners("directory-files");
+      ipcRenderer.removeAllListeners("setFilePath");
+    };
+  }, []);
+
+  React.useEffect(() => {
+    //ipcRenderer.send("get-directory-files" /* directory path */);
+    ipcRenderer.on("directory-not-found", (event) => {
+      setDirectoryNotFound(true);
+    });
+
+    return () => {
+      ipcRenderer.removeAllListeners("directory-not-found");
     };
   }, []);
   React.useEffect(() => {
     //ipcRenderer.send("get-directory-files" /* directory path */);
-    ipcRenderer.on("setDirectoryPath", (event, directoryPath) => {
-      if (directoryPath && directoryPath.length > 0) {
-        setDirectoryPath(directoryPath);
+    ipcRenderer.on("file-not-found", (event) => {
+      setFileNotFound(true);
+    });
+
+    return () => {
+      ipcRenderer.removeAllListeners("file-not-found");
+    };
+  }, []);
+
+  React.useEffect(() => {
+    //ipcRenderer.send("get-directory-files" /* directory path */);
+    ipcRenderer.on("setDirectoryPath", (event, _directoryPath) => {
+      if (_directoryPath && _directoryPath.length > 0) {
+        setDirectoryPath(_directoryPath);
+      }
+      if (_directoryPath !== directoryPath) {
+        setDFileNames([]);
       }
     });
 
     return () => {
-      ipcRenderer.removeAllListeners("directory-files");
+      ipcRenderer.removeAllListeners("setDirectoryPath");
     };
-  }, []);
+  }, [directoryPath]);
+
+  React.useEffect(() => {
+    if (filePath.length > 0) {
+      setSourceFileError(false);
+    }
+  }, [filePath]);
+
+  React.useEffect(() => {
+    if (directoryPath.length > 0) {
+      setDirectoryError(false);
+    }
+  }, [directoryPath]);
+
+  const handleFileSelection = () => {
+    ipcRenderer.send("open-file-selection");
+  };
+  const handleDirectorySelection = () => {
+    ipcRenderer.send("open-directory-selection");
+  };
   const handleDragOver = (event) => {
     event.preventDefault();
   };
@@ -153,14 +202,8 @@ const MainUI = () => {
     event.preventDefault();
     const file = event.dataTransfer.files[0];
     setFilePath(file.path);
-    //const filePath = file.path;
-    //const textBox = document.getElementById("source-file");
-    //textBox.value = filePath;
   };
 
-  const [selectedChip, setSelectedChip] = React.useState("Date Modified");
-  const [sourceFileError, setSourceFileError] = React.useState(false);
-  const [directoryError, setDirectoryError] = React.useState(false);
   const handleChipClick = (label) => {
     setSelectedChip(label);
   };
@@ -210,6 +253,10 @@ const MainUI = () => {
 
     setIsLoading(true); // Set the loading state to true
     setDFileNames([]);
+    setEmptyReturnedDFiles(false);
+    setHasReceivedFiles(false);
+    setDirectoryNotFound(false);
+    setFileNotFound(false);
     // Use a try-catch block to handle any errors that may occur during file reading
     try {
       // Perform the file reading process
@@ -223,27 +270,21 @@ const MainUI = () => {
       console.error("Error reading files:", error);
     }
   };
-  const onReset = async () => {
+
+  const onReset = () => {
     setDFileNames([]);
     setSelectedChip("Date Modified");
     setIsLoading(false);
     setSourceFileError(false);
     setDirectoryError(false);
     setEmptyReturnedDFiles(false);
+    setHasReceivedFiles(false);
     setFilePath("");
     setDirectoryPath("");
+    setDirectoryNotFound(false);
+    setFileNotFound(false);
   };
-  React.useEffect(() => {
-    if (filePath.length > 0) {
-      setSourceFileError(false);
-    }
-  }, [filePath]);
 
-  React.useEffect(() => {
-    if (directoryPath.length > 0) {
-      setDirectoryError(false);
-    }
-  }, [directoryPath]);
   const convertTime = (timeString) => {
     const timeObject = new Date(timeString);
     const options = {
@@ -255,12 +296,6 @@ const MainUI = () => {
     };
     return timeObject.toLocaleString(undefined, options);
   };
-  /*const handleContextMenu = (event, fileName) => {
-    console.log(directoryPath + "\\" + fileName);
-    event.preventDefault();
-    ipcRenderer.send("show-context-menu", directoryPath + "\\" + fileName);
-  };*/
-  const [contextMenu, setContextMenu] = React.useState(null);
 
   const handleContextMenu = (event, pathFile) => {
     event.preventDefault();
@@ -272,7 +307,6 @@ const MainUI = () => {
       });
     }
   };
-
   const handleClose = () => {
     setContextMenu(null);
   };
@@ -281,7 +315,6 @@ const MainUI = () => {
     ipcRenderer.send("open-file-default", directoryPath + "\\" + pathFile);
     setContextMenu(null);
   };
-
   const copyToClipboard = (text) => {
     navigator.clipboard
       .writeText(text)
@@ -303,7 +336,7 @@ const MainUI = () => {
     ipcRenderer.send("open-file-location", directoryPath + "\\" + pathFile);
     setContextMenu(null);
   };
-  const [isLoading, setIsLoading] = React.useState(false);
+
   return (
     <StyledContainer>
       <Box
@@ -470,7 +503,15 @@ const MainUI = () => {
       </Box>
       <StyledCard>
         <ScrollableCardContent>
-          {emptyReturnedDFiles ? (
+          {fileNotfound ? (
+            <div>
+              <Typography variant="h6">File not found</Typography>
+            </div>
+          ) : directoryNotfound ? (
+            <div>
+              <Typography variant="h6">Directory not found</Typography>
+            </div>
+          ) : emptyReturnedDFiles ? (
             <div>
               <Typography variant="h6">No files found</Typography>
               <Typography variant="subtitle2">

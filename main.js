@@ -38,6 +38,7 @@ const createWindow = () => {
         fs.stat(filePath, (err, stats) => {
           if (err) {
             console.error("Error retrieving file stats:", err);
+            event.reply("file-not-found");
             return;
           }
 
@@ -48,6 +49,7 @@ const createWindow = () => {
             fs.readdir(directoryPath, async (err, files) => {
               if (err) {
                 console.error("Error reading directory:", err);
+                event.reply("directory-not-found");
                 return;
               }
               const chunkSize = 50; // Define the chunk size for loading files

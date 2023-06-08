@@ -1,6 +1,6 @@
 {
   "name": "datefile",
-  "version": "0.0.1",
+  "version": "0.0.8",
   "description": "index files in a directory using the date of another file as a filter",
   "main": "main.js",
   "scripts": {
