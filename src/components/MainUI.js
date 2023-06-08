@@ -143,6 +143,7 @@ const MainUI = () => {
   React.useEffect(() => {
     //ipcRenderer.send("get-directory-files" /* directory path */);
     ipcRenderer.on("directory-not-found", (event) => {
+      setDirectoryError(true);
       setDirectoryNotFound(true);
     });
 
@@ -153,6 +154,7 @@ const MainUI = () => {
   React.useEffect(() => {
     //ipcRenderer.send("get-directory-files" /* directory path */);
     ipcRenderer.on("file-not-found", (event) => {
+      setSourceFileError(true);
       setFileNotFound(true);
     });
 
