@@ -167,7 +167,7 @@ const MainUI = () => {
       if (_directoryPath && _directoryPath.length > 0) {
         setDirectoryPath(_directoryPath);
       }
-      if (_directoryPath !== directoryPath) {
+      if (_directoryPath !== undefined && _directoryPath !== directoryPath) {
         setDFileNames([]);
       }
     });
