@@ -125,7 +125,9 @@ const MainUI = () => {
   React.useEffect(() => {
     //ipcRenderer.send("get-directory-files" /* directory path */);
     ipcRenderer.on("setFilePath", (event, filePaths) => {
-      setFilePath(filePaths);
+      if (filePaths && filePaths.length > 0) {
+        setFilePath(filePaths);
+      }
     });
 
     return () => {
@@ -135,7 +137,9 @@ const MainUI = () => {
   React.useEffect(() => {
     //ipcRenderer.send("get-directory-files" /* directory path */);
     ipcRenderer.on("setDirectoryPath", (event, directoryPath) => {
-      setDirectoryPath(directoryPath);
+      if (directoryPath && directoryPath.length > 0) {
+        setDirectoryPath(directoryPath);
+      }
     });
 
     return () => {
