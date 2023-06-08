@@ -223,6 +223,16 @@ const MainUI = () => {
       console.error("Error reading files:", error);
     }
   };
+  const onReset = async () => {
+    setDFileNames([]);
+    setSelectedChip("Date Modified");
+    setIsLoading(false);
+    setSourceFileError(false);
+    setDirectoryError(false);
+    setEmptyReturnedDFiles(false);
+    setFilePath("");
+    setDirectoryPath("");
+  };
   React.useEffect(() => {
     if (filePath.length > 0) {
       setSourceFileError(false);
@@ -391,8 +401,8 @@ const MainUI = () => {
         display="grid"
         sx={{
           m: "10px 20px 0 20px",
-          gridTemplateColumns: "1fr auto",
-          gridTemplateAreas: `"chips button"`,
+          gridTemplateColumns: "auto auto",
+          gridTemplateAreas: `"chips reset find"`,
           gap: "8px",
         }}
       >
@@ -413,18 +423,50 @@ const MainUI = () => {
             clickable
           />
         </Box>
-        <Button
+
+        <Box
           sx={{
-            width: "100px",
-            backgroundColor: "rgba(255, 255, 255, 0.05)",
-            gridArea: "button",
-            justifySelf: "flex-end",
+            gridArea: "reset",
             alignSelf: "flex-end",
+            display: "flex",
+            justifyContent: "flex-end",
           }}
-          onClick={onSubmit}
         >
-          Find
-        </Button>
+          <Button
+            sx={{
+              width: "100px",
+              backgroundColor: "rgba(255, 23, 68, 0.08)",
+              "&:hover": {
+                backgroundColor: "rgba(255, 23, 68, 0.18)",
+              },
+              justifySelf: "flex-end",
+            }}
+            onClick={onReset}
+            color="error"
+          >
+            Reset
+          </Button>
+        </Box>
+
+        <Box
+          sx={{
+            gridArea: "find",
+            alignSelf: "flex-end",
+            display: "flex",
+            justifyContent: "flex-end",
+          }}
+        >
+          <Button
+            sx={{
+              width: "100px",
+              backgroundColor: "rgba(255, 255, 255, 0.05)",
+              justifySelf: "flex-end",
+            }}
+            onClick={onSubmit}
+          >
+            Find
+          </Button>
+        </Box>
       </Box>
       <StyledCard>
         <ScrollableCardContent>
