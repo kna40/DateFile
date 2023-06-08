@@ -43,64 +43,84 @@ const createWindow = () => {
           const dateCreated = stats.birthtime; // Date created
 
           if (directoryPath && directoryPath.length > 0) {
-            fs.readdir(directoryPath, (err, files) => {
+            fs.readdir(directoryPath, async (err, files) => {
               if (err) {
                 console.error("Error reading directory:", err);
                 return;
               }
-              const filesData = [];
-              // Iterate over the files
-              files.forEach((file) => {
-                const filePath = `${directoryPath}/${file}`;
-                fs.stat(filePath, (err, stats) => {
-                  if (err) {
-                    console.error(
-                      `Error retrieving stats for file ${filePath}:`,
-                      err
-                    );
-                    return;
-                  }
-                  const fileDateModified = stats.mtime;
-                  const fileDateCreated = stats.birthtime;
-                  switch (selectedChip) {
-                    case "Date Modified":
-                      if (isSameDay(dateModified, fileDateModified)) {
-                        const fileData = {
-                          fileName: file,
-                          stats: stats,
-                        };
+              const chunkSize = 50; // Define the chunk size for loading files
+              let fileIndex = 0;
 
-                        filesData.push(fileData);
-                      }
-                      break;
-                    case "Date Created":
-                      if (isSameDay(dateCreated, fileDateCreated)) {
-                        const fileData = {
-                          fileName: file,
-                          stats: stats,
-                        };
+              // Send file chunks to the renderer process
+              while (fileIndex < files.length) {
+                const chunk = files.slice(fileIndex, fileIndex + chunkSize);
 
-                        filesData.push(fileData);
-                      }
-                      break;
-                    default:
-                      if (isSameDay(dateModified, fileDateModified)) {
-                        const fileData = {
-                          fileName: file,
-                          stats: stats,
-                        };
+                const filesData = await Promise.all(
+                  chunk.map((file) => {
+                    const filePath = `${directoryPath}/${file}`;
+                    return new Promise((resolve, reject) => {
+                      fs.stat(filePath, (err, stats) => {
+                        if (err) {
+                          console.error(
+                            `Error retrieving stats for file ${filePath}:`,
+                            err
+                          );
+                          reject(err);
+                        } else {
+                          const fileDateModified = stats.mtime;
+                          const fileDateCreated = stats.birthtime;
+                          switch (selectedChip) {
+                            case "Date Modified":
+                              if (isSameDay(dateModified, fileDateModified)) {
+                                const fileData = {
+                                  fileName: file,
+                                  stats: stats,
+                                };
+                                resolve(fileData);
+                              } else {
+                                resolve(null);
+                              }
+                              break;
+                            case "Date Created":
+                              if (isSameDay(dateCreated, fileDateCreated)) {
+                                const fileData = {
+                                  fileName: file,
+                                  stats: stats,
+                                };
+                                resolve(fileData);
+                              } else {
+                                resolve(null);
+                              }
+                              break;
+                            default:
+                              if (isSameDay(dateModified, fileDateModified)) {
+                                const fileData = {
+                                  fileName: file,
+                                  stats: stats,
+                                };
+                                resolve(fileData);
+                              } else {
+                                resolve(null);
+                              }
+                              break;
+                          }
+                        }
+                      });
+                    });
+                  })
+                );
 
-                        filesData.push(fileData);
-                      }
-                      break;
-                  }
-                  // Check if all file data has been collected
-                  //if (filesData.length === files.length) {
-                  // Send the files data to the renderer process
-                  win.webContents.send("directory-files", filesData);
-                  //}
-                });
-              });
+                // Filter out null values (files that didn't match the selected chip)
+                const filteredFilesData = filesData.filter(
+                  (fileData) => fileData !== null
+                );
+
+                event.reply("directory-files-chunk", filteredFilesData);
+
+                fileIndex += chunkSize;
+              }
+
+              event.reply("directory-files-end"); // Signal the end of file loading
             });
             console.log("Selected directory paths:", directoryPath);
           }

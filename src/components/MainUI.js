@@ -6,7 +6,6 @@ import {
   IconButton,
   Divider,
   Card,
-  List,
   ListItem,
   ListItemText,
   CardContent,
@@ -23,7 +22,8 @@ import FileOpenIcon from "@mui/icons-material/FileOpen";
 import FolderIcon from "@mui/icons-material/Folder";
 import { styled } from "@mui/system";
 import { InsertDriveFile, FileCopy } from "@mui/icons-material";
-import { FixedSizeList } from "react-window";
+import { FixedSizeList as List } from "react-window";
+import AutoSizer from "react-virtualized-auto-sizer";
 const StyledMenu = styled(Menu)(({ theme }) => ({
   //border: "1px solid #d3d4d5",
   borderRadius: "4px",
@@ -73,6 +73,22 @@ const ScrollableCardContent = styled(CardContent)({
     backgroundColor: "#555",
   },
 });
+const ListStyle = styled(List)({
+  flex: 1,
+  overflow: "auto",
+  maxHeight: "calc(100vh - 250px)", // Adjust the value as needed
+  "&::-webkit-scrollbar": {
+    width: "8px",
+  },
+  "&::-webkit-scrollbar-thumb": {
+    backgroundColor: "#888",
+    borderRadius: "4px",
+  },
+  "&::-webkit-scrollbar-thumb:hover": {
+    backgroundColor: "#555",
+  },
+});
+
 const { ipcRenderer } = window.require("electron");
 const MainUI = () => {
   const [filePath, setFilePath] = React.useState("");
@@ -87,21 +103,24 @@ const MainUI = () => {
   const [emptyReturnedDFiles, setEmptyReturnedDFiles] = React.useState(false);
   const [directoryPath, setDirectoryPath] = React.useState("");
   React.useEffect(() => {
-    //ipcRenderer.send("get-directory-files" /* directory path */);
-    ipcRenderer.on("directory-files", (event, files) => {
-      if (files.length === 0) {
-        setEmptyReturnedDFiles(true);
-        return;
-      }
-      setEmptyReturnedDFiles(false);
-      setDFileNames(files);
+    ipcRenderer.on("directory-files-chunk", (event, filesData) => {
+      // Update the state with the received file data
+      setDFileNames((prevFileNames) => [...prevFileNames, ...filesData]);
     });
 
     return () => {
-      ipcRenderer.removeAllListeners("directory-files");
+      ipcRenderer.removeAllListeners("directory-files-chunk");
     };
   }, []);
+  React.useEffect(() => {
+    ipcRenderer.on("directory-files-end", () => {
+      setIsLoading(false);
+    });
 
+    return () => {
+      ipcRenderer.removeAllListeners("directory-files-end");
+    };
+  }, []);
   React.useEffect(() => {
     //ipcRenderer.send("get-directory-files" /* directory path */);
     ipcRenderer.on("setFilePath", (event, filePaths) => {
@@ -163,6 +182,10 @@ const MainUI = () => {
       selectedChip,
     });
   };*/
+  // Set the chunk size for reading files
+
+  // Function to read files in chunks
+
   const onSubmit = async () => {
     if (filePath.length === 0 && directoryPath.length === 0) {
       setSourceFileError(true);
@@ -181,35 +204,19 @@ const MainUI = () => {
     }
 
     setIsLoading(true); // Set the loading state to true
-
+    setDFileNames([]);
     // Use a try-catch block to handle any errors that may occur during file reading
     try {
       // Perform the file reading process
-      const files = await new Promise((resolve, reject) => {
-        ipcRenderer.send("submitted", {
-          filePath,
-          directoryPath,
-          selectedChip,
-        });
-
-        ipcRenderer.once("directory-files", (event, files) => {
-          resolve(files);
-        });
-
-        // Handle any error during file reading
-        ipcRenderer.once("directory-files-error", (event, error) => {
-          reject(error);
-        });
+      ipcRenderer.send("submitted", {
+        filePath,
+        directoryPath,
+        selectedChip,
       });
-
-      // Update the state with the files
-      setDFileNames(files);
     } catch (error) {
       // Handle the error appropriately (e.g., show an error message)
       console.error("Error reading files:", error);
     }
-
-    setIsLoading(false); // Set the loading state to false once the files are read
   };
   React.useEffect(() => {
     if (filePath.length > 0) {
@@ -282,7 +289,6 @@ const MainUI = () => {
     setContextMenu(null);
   };
   const [isLoading, setIsLoading] = React.useState(false);
-
   return (
     <StyledContainer>
       <Box
@@ -435,86 +441,94 @@ const MainUI = () => {
               <CircularProgress />
             </div>
           ) : (
-            /*
-            <List container spacing={2}>
-              {Array.from({ length: 7 }).map((_, index) => (
-                <ListItem
-                  alignItems="center"
-                  sx={{ display: "block" }}
-                  divider
-                  dense
-                  item
-                >
-                  <Skeleton variant="text" width="40%" height={23} />
-                  <Skeleton variant="rounded" width="60%" height={43} />
-                </ListItem>
-              ))}
-              </List>*/
-            <List container spacing={2}>
-              {dFileNames.map((fileData, index) => (
-                <ListItem
-                  alignItems="center"
-                  sx={{ display: "block" }}
-                  divider
-                  dense
-                  item
-                  key={index}
-                  onContextMenu={(event) =>
-                    handleContextMenu(event, fileData.fileName)
-                  }
-                  style={{ cursor: "context-menu" }}
-                >
-                  <ListItemText
-                    sx={{ mb: 0 }}
-                    primary={`File Name: ${fileData.fileName}`}
-                    secondary={`Date Modified: ${JSON.stringify(
-                      convertTime(fileData.stats.mtime)
-                    )}`}
-                  />
-                  <ListItemText
-                    sx={{ mt: 0 }}
-                    secondary={`Date Created: ${JSON.stringify(
-                      convertTime(fileData.stats.birthtime)
-                    )}`}
-                  />
-                  <StyledMenu
-                    open={contextMenu !== null}
-                    onClose={handleClose}
-                    anchorReference="anchorPosition"
-                    anchorPosition={
-                      contextMenu !== null
-                        ? { top: contextMenu.mouseY, left: contextMenu.mouseX }
-                        : undefined
-                    }
+            <AutoSizer>
+              {({ height, width }) => (
+                <div style={{ height, width }}>
+                  <ListStyle
+                    height={height}
+                    width={width} // Use the width provided by AutoSizer
+                    itemCount={dFileNames.length}
+                    itemSize={80}
                   >
-                    <StyledMenuItem
-                      onClick={() => handleFileOpen(contextMenu.fileName)}
-                    >
-                      <ListItemIcon>
-                        <InsertDriveFile />
-                      </ListItemIcon>
-                      Open file
-                    </StyledMenuItem>
-                    <StyledMenuItem
-                      onClick={() => handleCopy(contextMenu.fileName)}
-                    >
-                      <ListItemIcon>
-                        <FileCopy />
-                      </ListItemIcon>
-                      Copy as path
-                    </StyledMenuItem>
-                    <StyledMenuItem
-                      onClick={() => handleOpenLocation(contextMenu.fileName)}
-                    >
-                      <ListItemIcon>
-                        <FolderIcon />
-                      </ListItemIcon>
-                      Open file location
-                    </StyledMenuItem>
-                  </StyledMenu>
-                </ListItem>
-              ))}
-            </List>
+                    {({ index, style }) => {
+                      const fileData = dFileNames[index];
+                      return (
+                        <div style={style}>
+                          <ListItem
+                            alignItems="center"
+                            sx={{ display: "block" }}
+                            divider
+                            dense
+                            item
+                            key={index}
+                            onContextMenu={(event) =>
+                              handleContextMenu(event, fileData.fileName)
+                            }
+                            style={{ cursor: "context-menu" }}
+                          >
+                            <ListItemText
+                              sx={{ mb: 0 }}
+                              primary={`File Name: ${fileData.fileName}`}
+                              secondary={`Date Modified: ${JSON.stringify(
+                                convertTime(fileData.stats.mtime)
+                              )}`}
+                            />
+                            <ListItemText
+                              sx={{ mt: 0 }}
+                              secondary={`Date Created: ${JSON.stringify(
+                                convertTime(fileData.stats.birthtime)
+                              )}`}
+                            />
+                            <StyledMenu
+                              open={contextMenu !== null}
+                              onClose={handleClose}
+                              anchorReference="anchorPosition"
+                              anchorPosition={
+                                contextMenu !== null
+                                  ? {
+                                      top: contextMenu.mouseY,
+                                      left: contextMenu.mouseX,
+                                    }
+                                  : undefined
+                              }
+                            >
+                              <StyledMenuItem
+                                onClick={() =>
+                                  handleFileOpen(contextMenu.fileName)
+                                }
+                              >
+                                <ListItemIcon>
+                                  <InsertDriveFile />
+                                </ListItemIcon>
+                                Open file
+                              </StyledMenuItem>
+                              <StyledMenuItem
+                                onClick={() => handleCopy(contextMenu.fileName)}
+                              >
+                                <ListItemIcon>
+                                  <FileCopy />
+                                </ListItemIcon>
+                                Copy as path
+                              </StyledMenuItem>
+                              <StyledMenuItem
+                                onClick={() =>
+                                  handleOpenLocation(contextMenu.fileName)
+                                }
+                              >
+                                <ListItemIcon>
+                                  <FolderIcon />
+                                </ListItemIcon>
+                                Open file location
+                              </StyledMenuItem>
+                            </StyledMenu>
+                          </ListItem>
+                        </div>
+                      );
+                    }}
+                  </ListStyle>
+                </div>
+              )}
+            </AutoSizer>
           )}
         </ScrollableCardContent>
       </StyledCard>
