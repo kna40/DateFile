@@ -5,7 +5,6 @@ const {
   ipcMain,
   dialog,
   shell,
-  Menu,
 } = require("electron");
 const fs = require("fs");
 const { isSameDay } = require("date-fns");

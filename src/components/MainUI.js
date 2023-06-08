@@ -14,7 +14,6 @@ import {
   MenuItem,
   Menu,
   ListItemIcon,
-  Skeleton,
   Typography,
 } from "@mui/material";
 import { CircularProgress } from "@mui/material";
@@ -26,7 +25,6 @@ import { FixedSizeList as List } from "react-window";
 import AutoSizer from "react-virtualized-auto-sizer";
 
 const StyledMenu = styled(Menu)(({ theme }) => ({
-  //border: "1px solid #d3d4d5",
   borderRadius: "4px",
   marginTop: "8px",
   minWidth: "180px",
