@@ -8,26 +8,25 @@ const {
 } = require("electron");
 const fs = require("fs");
 const { isSameDay } = require("date-fns");
-
+const path = require("path");
 nativeTheme.themeSource = "dark";
-try {
-  require("electron-reloader")(module);
-} catch (_) {}
-
-const createWindow = () => {
-  const win = new BrowserWindow({
+let win = null;
+function createWindow() {
+  win = new BrowserWindow({
     width: 600,
     height: 900,
+    icon: path.join(__dirname, "..", "assets", "datefile.png"),
     webPreferences: {
       nodeIntegration: true,
       enableRemoteModule: true,
       contextIsolation: false,
-      //devTools: false, // Disable DevTools
+      devTools: false, // Disable DevTools
       fullscreen: true, // Hide the top bar
     },
   });
-  //win.removeMenu();
-  win.loadURL("http://localhost:3000");
+  win.removeMenu();
+  const filePath = path.join(__dirname, "..", "renderer", "index.html");
+  win.loadURL(`file://${filePath}`);
 
   ipcMain.on(
     "submitted",
@@ -171,7 +170,12 @@ const createWindow = () => {
     shell.showItemInFolder(filePath);
     //shell.openPath(filePath);
   });
-};
+
+  win.on("closed", () => {
+    // Dereference the window object
+    win = null;
+  });
+}
 
 app.whenReady().then(() => {
   createWindow();
@@ -179,6 +183,13 @@ app.whenReady().then(() => {
   app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
+    }
+  });
+
+  app.on("before-quit", () => {
+    // Remove event listeners when the application is about to quit
+    if (win) {
+      win.removeAllListeners("closed");
     }
   });
 });

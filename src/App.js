@@ -7,7 +7,6 @@ import CssBaseline from "@mui/material/CssBaseline";
 import { red } from "@mui/material/colors";
 
 import MainUI from "./components/MainUI";
-import "./App.css";
 
 function App() {
   const prefersDarkMode = useMediaQuery("(prefers-color-scheme: dark)");
