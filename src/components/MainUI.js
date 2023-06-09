@@ -32,10 +32,7 @@ const StyledMenu = styled(Menu)(({ theme }) => ({
 }));
 
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
-  "&:hover": {
-    //backgroundColor: theme.palette.primary.main,
-    //color: theme.palette.primary.contrastText,
-  },
+  "&:hover": {},
   paddingTop: theme.spacing(1),
   paddingBottom: theme.spacing(1),
   paddingLeft: theme.spacing(2),
@@ -126,7 +123,6 @@ const MainUI = () => {
   }, [hasReceivedFiles]);
 
   React.useEffect(() => {
-    //ipcRenderer.send("get-directory-files" /* directory path */);
     ipcRenderer.on("setFilePath", (event, filePaths) => {
       if (filePaths && filePaths.length > 0) {
         setFilePath(filePaths);
@@ -139,7 +135,6 @@ const MainUI = () => {
   }, []);
 
   React.useEffect(() => {
-    //ipcRenderer.send("get-directory-files" /* directory path */);
     ipcRenderer.on("directory-not-found", (event) => {
       setDirectoryError(true);
       setDirectoryNotFound(true);
@@ -150,7 +145,6 @@ const MainUI = () => {
     };
   }, []);
   React.useEffect(() => {
-    //ipcRenderer.send("get-directory-files" /* directory path */);
     ipcRenderer.on("file-not-found", (event) => {
       setSourceFileError(true);
       setFileNotFound(true);
@@ -162,7 +156,6 @@ const MainUI = () => {
   }, []);
 
   React.useEffect(() => {
-    //ipcRenderer.send("get-directory-files" /* directory path */);
     ipcRenderer.on("setDirectoryPath", (event, _directoryPath) => {
       if (_directoryPath && _directoryPath.length > 0) {
         setDirectoryPath(_directoryPath);
@@ -207,32 +200,6 @@ const MainUI = () => {
   const handleChipClick = (label) => {
     setSelectedChip(label);
   };
-  /*const onSubmit = () => {
-    if (filePath.length === 0 && directoryPath.length === 0) {
-      setSourceFileError(true);
-      setDirectoryError(true);
-      return;
-    }
-
-    if (filePath.length === 0) {
-      setSourceFileError(true);
-      return;
-    }
-
-    if (directoryPath.length === 0) {
-      setDirectoryError(true);
-      return;
-    }
-
-    ipcRenderer.send("submitted", {
-      filePath,
-      directoryPath,
-      selectedChip,
-    });
-  };*/
-  // Set the chunk size for reading files
-
-  // Function to read files in chunks
 
   const onSubmit = async () => {
     if (filePath.length === 0 && directoryPath.length === 0) {
