@@ -1,0 +1,14 @@
+{
+  "appId": "DateFile",
+  "productName": "DateFile",
+  "compression": "store",
+  "directories": {
+    "output": ".bin"
+  },
+  "files": ["main/", "renderer/**/*", "assets/**/*", "package.json"],
+  "win": {
+    "target": "7z",
+    "icon": "favicon.ico"
+  },
+  "extends": null
+}

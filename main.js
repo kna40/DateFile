@@ -20,13 +20,14 @@ function createWindow() {
       nodeIntegration: true,
       enableRemoteModule: true,
       contextIsolation: false,
-      devTools: false, // Disable DevTools
+      //devTools: false, // Disable DevTools
       fullscreen: true, // Hide the top bar
     },
   });
-  win.removeMenu();
+  //win.removeMenu();
   const filePath = path.join(__dirname, "..", "renderer", "index.html");
-  win.loadURL(`file://${filePath}`);
+  // win.loadURL(`file://${filePath}`);
+  win.loadURL("http://localhost:3000");
 
   ipcMain.on(
     "submitted",

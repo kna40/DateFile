@@ -1,11 +1,11 @@
 const path = require("path");
 
 module.exports = {
-  target: "electron-main",
-  entry: "./main/main.js", // Entry point of your application
+  //target: "electron-main",
+  entry: "./src/index.js", // Entry point of your application
   output: {
-    path: path.resolve(__dirname, "main"),
-    filename: "main.js",
+    path: path.resolve(__dirname, "renderer"),
+    filename: "index.js",
   },
   module: {
     rules: [

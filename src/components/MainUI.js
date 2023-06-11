@@ -18,6 +18,7 @@ import {
 } from "@mui/material";
 import { CircularProgress } from "@mui/material";
 import FileOpenIcon from "@mui/icons-material/FileOpen";
+import ExpandCircleDownIcon from "@mui/icons-material/ExpandCircleDown";
 import FolderIcon from "@mui/icons-material/Folder";
 import { styled } from "@mui/system";
 import { InsertDriveFile, FileCopy } from "@mui/icons-material";
@@ -251,7 +252,27 @@ const MainUI = () => {
     setDirectoryNotFound(false);
     setFileNotFound(false);
   };
-
+  const onSort = (sort) => {
+    console.log(sort);
+    switch (sort) {
+      case "asc":
+        const ascSorted = dFileNames
+          .slice()
+          .sort((a, b) => a.stats.mtime - b.stats.mtime);
+        console.log(ascSorted);
+        setDFileNames(ascSorted);
+        break;
+      case "desc":
+        const descSorted = dFileNames
+          .slice()
+          .sort((a, b) => b.stats.mtime - a.stats.mtime);
+        console.log(descSorted);
+        setDFileNames(descSorted);
+        break;
+      default:
+        break;
+    }
+  };
   const convertTime = (timeString) => {
     const timeObject = new Date(timeString);
     const options = {
@@ -402,7 +423,7 @@ const MainUI = () => {
         sx={{
           m: "10px 20px 0 20px",
           gridTemplateColumns: "auto auto",
-          gridTemplateAreas: `"chips reset find"`,
+          gridTemplateAreas: `"chips sort reset find"`,
           gap: "8px",
         }}
       >
@@ -422,6 +443,33 @@ const MainUI = () => {
             variant={selectedChip === "Date Created" ? "filled" : "outlined"}
             clickable
           />
+        </Box>
+        <Box
+          sx={{
+            gridArea: "sort",
+            alignSelf: "center",
+            display: "flex",
+            justifyContent: "center",
+          }}
+        >
+          <IconButton
+            sx={{
+              justifySelf: "flex-end",
+            }}
+            onClick={() => onSort("asc")}
+          >
+            <ExpandCircleDownIcon
+              sx={{ transform: "scaleY(-1)" }}
+            ></ExpandCircleDownIcon>
+          </IconButton>
+          <IconButton
+            sx={{
+              justifySelf: "flex-end",
+            }}
+            onClick={() => onSort("desc")}
+          >
+            <ExpandCircleDownIcon></ExpandCircleDownIcon>
+          </IconButton>
         </Box>
 
         <Box
