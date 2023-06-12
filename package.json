@@ -1,12 +1,16 @@
 {
-  "name": "datefile",
+  "name": "DateFIle",
   "version": "0.1.0",
   "description": "index files in a directory using the date of another file as a filter",
-  "main": "./main/main.js",
+  "main": "main.js",
   "scripts": {
+    "start": "concurrently \"npm run react-start\" \"npm run electron-start\"",
     "react-start": "react-scripts start",
     "electron-start": "electron .",
-    "build": "electron-builder --win --x64",
+    "build-win": "electron-builder --win --x64",
+    "webpack-electron": "npx webpack --config webpack.electron.config.js --mode=production",
+    "webpack-react": "npx webpack --config webpack.react.config.js --mode=production",
+    "webpack": "concurrently \"npm run webpack-react\" \"npm run webpack-electron\"",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -16,13 +20,14 @@
     "dates",
     "directory"
   ],
-  "author": "VYAITHN",
-  "license": "ISC",
+  "author": "Kirolos A.",
+  "license": "MIT",
   "devDependencies": {
     "@babel/core": "^7.22.5",
     "@babel/preset-env": "^7.22.5",
     "@babel/preset-react": "^7.22.5",
     "babel-loader": "^9.1.2",
+    "concurrently": "^8.2.0",
     "electron": "^25.0.1",
     "electron-builder": "^23.6.0",
     "react-scripts": "5.0.1",
