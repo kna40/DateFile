@@ -18,12 +18,19 @@ The application addresses the common challenge of locating files associated with
 
 ## Disclaimer
 
-While this is built using electron, macOS and Linux have not been tested. It runs locally only. It does not look through subdirectories. Most likely won't keep this updated.
+While this is built using electron, macOS and Linux have not been tested.
+
+It runs locally only.
+
+It does not look through subdirectories.
+
+Most likely won't keep this updated.
+
+## Installation/Releases
 
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/en/download/)
--
 
 ## Getting Started
 
