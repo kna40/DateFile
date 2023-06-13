@@ -1,10 +1,19 @@
-# DateFile
+<p align="center">
+    <a href="https://github.com/kna40/datefile">
+      <img alt="DateFile Logo" src="./assets/datefile.png" width="60" />
+    </a>
+  <h1 align="center">
+    DateFile
+  </h1>
+</p>
 
 DateFile is a file management application with a user-friendly graphical user interface (GUI) built using Electron, React, and Material-UI (MUI). It simplifies the process of finding files based on the date of another file, making file organization and retrieval easy.
 
 I made this application to help me find old project files in a large and disorganized directory. Using the date of an exported file from the project I am able to find the project file. I also took this as an opportunity to learn electron.
 
-The application addresses the common challenge of locating files associated with a specific date. With DateFile, you can effortlessly search for files that share the same date as a reference file of your choice. The intuitive and visually appealing interface enhances usability, making it easier to manage your files based on their dates.
+## UI
+
+<img src="./assets/ui/ui.png" width="200" height="auto">
 
 ## Key Features
 
@@ -12,29 +21,31 @@ The application addresses the common challenge of locating files associated with
 
 **Date-based file search**: Easily locate files that have the same date as a specified reference file.
 
-**Preview and selection**: Preview search results and selectively choose the files you want to work with.
+**Preview**: Preview file names, date modified, and date created.
 
-**Enhanced file organization**: Streamline your file management workflow by efficiently organizing files by date.
+**Open, Copy, and Show**: Allows you to open the file, copy the file location, or show the file location straight from the app.
+
+**Sort**: Sort the results ascending or descending.
 
 ## Disclaimer
 
 While this is built using electron, macOS and Linux have not been tested.
 
-It runs locally only.
-
 It does not look through subdirectories.
 
-Most likely won't keep this updated.
+Most likely won't keep this updated unless someone can help test on macOS or Linux.
 
 ## Installation/Releases
 
-## Prerequisites
+Downloads are available in `releases` section if you just want to download and run or click [here](https://github.com/kna40/datefile/releases/tag/v0.1.0)
+
+## Build on macOS or Linux
+
+**Prerequisites**
 
 - [Node.js](https://nodejs.org/en/download/)
 
-## Getting Started
-
-To start using DateFile, follow these steps:
+To build DateFile, follow these steps:
 
 1. Clone the repository:
 
@@ -49,12 +60,8 @@ cd DateFile
 npm install
 ```
 
-3.  Launch the application:
+3. Build
 
 ```sh
-npm start
+npm run build-<platform> //e.g. build-macos
 ```
-
-## Build
-
-To build DateFile, follow these steps:

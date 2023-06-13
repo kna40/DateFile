@@ -2,15 +2,17 @@
   "name": "DateFIle",
   "version": "0.1.0",
   "description": "index files in a directory using the date of another file as a filter",
-  "main": "main.js",
+  "main": "./main/main.js",
   "scripts": {
     "start": "concurrently \"npm run react-start\" \"npm run electron-start\"",
     "react-start": "react-scripts start",
     "electron-start": "electron .",
-    "build-win": "electron-builder --win --x64",
     "webpack-electron": "npx webpack --config webpack.electron.config.js --mode=production",
     "webpack-react": "npx webpack --config webpack.react.config.js --mode=production",
     "webpack": "concurrently \"npm run webpack-react\" \"npm run webpack-electron\"",
+    "build-win": "electron-packager . DateFile --platform=win32 --arch=x64 --mode=production --out=./.bin --ignore=node_modules --ignore=mainDev.js --ignore=electron-builder.json --ingore=webpack.config.js --ingore=webpack.react.config.js  --ingore=webpack.electron.config.js --icon=favicon.ico --app-version=0.1.0 --asar",
+    "build-macos": "electron-packager . DateFile --platform=darwin --arch=x64 --mode=production --out=./.bin --ignore=node_modules --ignore=mainDev.js --ignore=electron-builder.json --ingore=webpack.config.js --ingore=webpack.react.config.js  --ingore=webpack.electron.config.js --icon=./assets/datefile.png --app-version=0.1.0 --asar",
+    "build-linux": "electron-packager . DateFile --platform=linux --arch=x64 --mode=production --out=./.bin --ignore=node_modules --ignore=mainDev.js --ignore=electron-builder.json --ingore=webpack.config.js --ingore=webpack.react.config.js  --ingore=webpack.electron.config.js --icon=./assets/datefile.png --app-version=0.1.0 --asar",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
@@ -18,7 +20,10 @@
     "index",
     "search",
     "dates",
-    "directory"
+    "directory",
+    "electron",
+    "nodejs",
+    "reactjs"
   ],
   "author": "Kirolos A.",
   "license": "MIT",
@@ -29,7 +34,7 @@
     "babel-loader": "^9.1.2",
     "concurrently": "^8.2.0",
     "electron": "^25.0.1",
-    "electron-builder": "^23.6.0",
+    "electron-packager": "^17.1.1",
     "react-scripts": "5.0.1",
     "webpack": "^5.86.0",
     "webpack-cli": "^5.1.4"
